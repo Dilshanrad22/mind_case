@@ -1,12 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import * as Yup from 'yup';
 import PrimaryButton from '../components/PrimaryButton';
 import { useTheme } from '../theme';
+import { login } from '../redux/slices/authSlice';
+
+// Validation schema
+const loginSchema = Yup.object().shape({
+  username: Yup.string()
+    .required('Username is required')
+    .min(3, 'Username must be at least 3 characters'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(6, 'Password must be at least 6 characters'),
+});
 
 export default function SignInScreen({ navigation }) {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
+  };
+
+  const handleSignIn = async () => {
+    try {
+      // Validate form
+      await loginSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+      
+      // Dispatch login action
+      const result = await dispatch(login(formData)).unwrap();
+      
+      // Navigate to app on success
+      navigation.replace('App');
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        // Yup validation errors
+        const validationErrors = {};
+        err.inner.forEach(error => {
+          validationErrors[error.path] = error.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        // API or other errors
+        Alert.alert('Login Failed', err || 'Please check your credentials');
+      }
+    }
+  };
+
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -29,35 +85,41 @@ export default function SignInScreen({ navigation }) {
           </View>
           <Text style={[styles.headerTitle, { color: '#fff' }]}>Welcome Back</Text>
           <Text style={[styles.headerSubtitle, { color: '#fff', opacity: 0.9 }]}>Sign in to continue your wellness journey</Text>
+          <Text style={[styles.demoHint, { color: '#fff', opacity: 0.8 }]}>Demo: username: emilys, password: emilyspass</Text>
         </LinearGradient>
 
         {/* Form Container */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Email Address</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-              <Ionicons name="mail-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: theme.colors.text }]}>Username</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.username ? theme.colors.danger : theme.colors.border }]}>
+              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
-                placeholder="Enter your email" 
+                placeholder="Enter your username" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
                 autoCapitalize="none"
-                keyboardType="email-address"
+                value={formData.username}
+                onChangeText={(text) => handleInputChange('username', text)}
               />
             </View>
+            {errors.username && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.username}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: theme.colors.text }]}>Password</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.password ? theme.colors.danger : theme.colors.border }]}>
               <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
                 placeholder="Enter your password" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
                 secureTextEntry
+                value={formData.password}
+                onChangeText={(text) => handleInputChange('password', text)}
               />
             </View>
+            {errors.password && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.password}</Text>}
           </View>
 
           <Pressable style={styles.forgotPassword}>
@@ -65,7 +127,11 @@ export default function SignInScreen({ navigation }) {
           </Pressable>
 
           <View style={styles.buttonContainer}>
-            <PrimaryButton label="Sign In" onPress={() => navigation.replace('App')} />
+            {loading ? (
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+            ) : (
+              <PrimaryButton label="Sign In" onPress={handleSignIn} />
+            )}
           </View>
 
           <View style={styles.signupContainer}>
@@ -112,6 +178,16 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginBottom: 8,
     textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  demoHint: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   headerSubtitle: {
     fontSize: 16,
@@ -176,5 +252,10 @@ const styles = StyleSheet.create({
   signupLink: {
     fontSize: 15,
     fontWeight: '700',
+  },
+  errorText: {
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });

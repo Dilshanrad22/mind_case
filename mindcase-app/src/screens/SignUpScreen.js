@@ -1,12 +1,79 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import * as Yup from 'yup';
 import PrimaryButton from '../components/PrimaryButton';
 import { useTheme } from '../theme';
+import { register, login } from '../redux/slices/authSlice';
+
+// Validation schema
+const registerSchema = Yup.object().shape({
+  username: Yup.string()
+    .required('Username is required')
+    .min(3, 'Username must be at least 3 characters'),
+  email: Yup.string()
+    .email('Invalid email format')
+    .required('Email is required'),
+  firstName: Yup.string()
+    .required('First name is required'),
+  lastName: Yup.string()
+    .required('Last name is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(6, 'Password must be at least 6 characters'),
+});
 
 export default function SignUpScreen({ navigation }) {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
+  };
+
+  const handleSignUp = async () => {
+    try {
+      await registerSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+      
+      // Register user
+      await dispatch(register(formData)).unwrap();
+      
+      // Auto-login after registration
+      await dispatch(login({ 
+        username: formData.username, 
+        password: formData.password 
+      })).unwrap();
+      
+      navigation.replace('App');
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const validationErrors = {};
+        err.inner.forEach(error => {
+          validationErrors[error.path] = error.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        Alert.alert('Registration Failed', err || 'Please try again');
+      }
+    }
+  };
+
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -34,20 +101,54 @@ export default function SignUpScreen({ navigation }) {
         {/* Form Container */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Full Name</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Username</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.username ? theme.colors.danger : theme.colors.border }]}>
               <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
-                placeholder="Enter your name" 
+                placeholder="Choose a username" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
+                autoCapitalize="none"
+                value={formData.username}
+                onChangeText={(text) => handleInputChange('username', text)}
               />
             </View>
+            {errors.username && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.username}</Text>}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>First Name</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.firstName ? theme.colors.danger : theme.colors.border }]}>
+              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                placeholder="Enter your first name" 
+                placeholderTextColor={theme.colors.textMuted}
+                style={[styles.input, { color: theme.colors.text }]} 
+                value={formData.firstName}
+                onChangeText={(text) => handleInputChange('firstName', text)}
+              />
+            </View>
+            {errors.firstName && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.firstName}</Text>}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Last Name</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.lastName ? theme.colors.danger : theme.colors.border }]}>
+              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+              <TextInput 
+                placeholder="Enter your last name" 
+                placeholderTextColor={theme.colors.textMuted}
+                style={[styles.input, { color: theme.colors.text }]} 
+                value={formData.lastName}
+                onChangeText={(text) => handleInputChange('lastName', text)}
+              />
+            </View>
+            {errors.lastName && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.lastName}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: theme.colors.text }]}>Email Address</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.email ? theme.colors.danger : theme.colors.border }]}>
               <Ionicons name="mail-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
                 placeholder="Enter your email" 
@@ -55,21 +156,27 @@ export default function SignUpScreen({ navigation }) {
                 style={[styles.input, { color: theme.colors.text }]} 
                 autoCapitalize="none"
                 keyboardType="email-address"
+                value={formData.email}
+                onChangeText={(text) => handleInputChange('email', text)}
               />
             </View>
+            {errors.email && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.email}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: theme.colors.text }]}>Password</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.password ? theme.colors.danger : theme.colors.border }]}>
               <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
                 placeholder="Create a password" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
                 secureTextEntry
+                value={formData.password}
+                onChangeText={(text) => handleInputChange('password', text)}
               />
             </View>
+            {errors.password && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.password}</Text>}
           </View>
 
           <View style={styles.termsContainer}>
@@ -82,7 +189,11 @@ export default function SignUpScreen({ navigation }) {
           </View>
 
           <View style={styles.buttonContainer}>
-            <PrimaryButton label="Create Account" onPress={() => navigation.replace('App')} />
+            {loading ? (
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+            ) : (
+              <PrimaryButton label="Create Account" onPress={handleSignUp} />
+            )}
           </View>
 
           <View style={styles.signinContainer}>
@@ -193,5 +304,10 @@ const styles = StyleSheet.create({
   signinLink: {
     fontSize: 15,
     fontWeight: '700',
+  },
+  errorText: {
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });

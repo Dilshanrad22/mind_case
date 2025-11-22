@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { useDispatch, useSelector } from 'react-redux';
+import { ActivityIndicator, View } from 'react-native';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -11,9 +13,8 @@ import HomeScreen from '../screens/HomeScreen';
 import MoodScreen from '../screens/MoodScreen';
 import JournalScreen from '../screens/JournalScreen';
 import ExercisesScreen from '../screens/ExercisesScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import InsightsScreen from '../screens/InsightsScreen';
-import ResourcesScreen from '../screens/ResourcesScreen';
 import HelpScreen from '../screens/HelpScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import JournalEntryScreen from '../screens/JournalEntryScreen';
@@ -21,11 +22,14 @@ import NewJournalEntryScreen from '../screens/NewJournalEntryScreen';
 import MoodHistoryScreen from '../screens/MoodHistoryScreen';
 import ExerciseDetailScreen from '../screens/ExerciseDetailScreen';
 import { useTheme } from '../theme';
+import { loadStoredAuth } from '../redux/slices/authSlice';
+import { loadFavoritesFromStorage } from '../redux/slices/favoritesSlice';
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const JournalStack = createNativeStackNavigator();
 const MoodStack = createNativeStackNavigator();
+const FavoritesStack = createNativeStackNavigator();
 const ExercisesStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 
@@ -59,6 +63,21 @@ function JournalStackNavigator() {
       <JournalStack.Screen name="JournalEntry" component={JournalEntryScreen} options={{ title: 'Entry' }} />
       <JournalStack.Screen name="NewJournalEntry" component={NewJournalEntryScreen} options={{ title: 'New Entry' }} />
     </JournalStack.Navigator>
+  );
+}
+
+function FavoritesStackNavigator() {
+  const theme = useTheme();
+  return (
+    <FavoritesStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.colors.surface },
+        headerTintColor: theme.colors.text,
+        headerShadowVisible: false
+      }}
+    >
+      <FavoritesStack.Screen name="FavoritesHome" component={FavoritesScreen} options={{ title: 'Favorites' }} />
+    </FavoritesStack.Navigator>
   );
 }
 
@@ -112,10 +131,9 @@ function AppTabs() {
             Home: 'home',
             Mood: 'happy',
             Journal: 'book',
+            Favorites: 'heart',
             Exercises: 'body',
-            Profile: 'person',
-            Insights: 'stats-chart',
-            Resources: 'library'
+            Profile: 'person'
           };
           const name = iconMap[route.name] || 'ellipse';
           return <Ionicons name={name} size={size} color={color} />;
@@ -125,9 +143,8 @@ function AppTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Mood" component={MoodStackNavigator} />
       <Tab.Screen name="Journal" component={JournalStackNavigator} />
+      <Tab.Screen name="Favorites" component={FavoritesStackNavigator} />
       <Tab.Screen name="Exercises" component={ExercisesStackNavigator} />
-      <Tab.Screen name="Insights" component={InsightsScreen} />
-      <Tab.Screen name="Resources" component={ResourcesScreen} />
       <Tab.Screen name="Profile" component={ProfileStackNavigator} />
     </Tab.Navigator>
   );
@@ -135,6 +152,29 @@ function AppTabs() {
 
 export default function RootNavigator() {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  useEffect(() => {
+    // Load stored auth and favorites on app start
+    const initializeApp = async () => {
+      await dispatch(loadStoredAuth());
+      await dispatch(loadFavoritesFromStorage());
+      setIsLoading(false);
+    };
+    
+    initializeApp();
+  }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <StatusBar style={theme.isDark ? "light" : "dark"} />
@@ -145,10 +185,15 @@ export default function RootNavigator() {
           headerShadowVisible: false
         }}
       >
-        <RootStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-        <RootStack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In' }} />
-        <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Create Account' }} />
-        <RootStack.Screen name="App" component={AppTabs} options={{ headerShown: false }} />
+        {!isAuthenticated ? (
+          <>
+            <RootStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+            <RootStack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In' }} />
+            <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Create Account' }} />
+          </>
+        ) : (
+          <RootStack.Screen name="App" component={AppTabs} options={{ headerShown: false }} />
+        )}
       </RootStack.Navigator>
     </NavigationContainer>
   );

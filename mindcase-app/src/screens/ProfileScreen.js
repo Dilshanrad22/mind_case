@@ -2,14 +2,30 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useDispatch, useSelector } from 'react-redux';
 import { useApp } from '../store/AppContext';
 import { useTheme } from '../theme';
 import ThemeToggle from '../components/ThemeToggle';
 import ShiningGold from '../components/ShiningGold';
+import { logout } from '../redux/slices/authSlice';
 
 export default function ProfileScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
   const { moodEntries, journalEntries } = useApp();
   const theme = useTheme();
+  
+  const getUserName = () => {
+    if (user) {
+      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+      return fullName || user.username || 'MindEase User';
+    }
+    return 'MindEase User';
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+  };
   
   const getDaysActive = () => {
     if (moodEntries.length === 0) return 0;
@@ -44,8 +60,10 @@ export default function ProfileScreen({ navigation }) {
               <Ionicons name="person" size={48} color={theme.colors.textOnSecondary} />
             </LinearGradient>
           </ShiningGold>
-          <Text style={[styles.profileName, { color: theme.colors.textOnPrimary }]}>MindEase User</Text>
-          <Text style={[styles.profileId, { color: theme.colors.textOnPrimary, opacity: 0.8 }]}>ID: 22431L</Text>
+          <Text style={[styles.profileName, { color: theme.colors.textOnPrimary }]}>{getUserName()}</Text>
+          <Text style={[styles.profileId, { color: theme.colors.textOnPrimary, opacity: 0.8 }]}>
+            {user?.email || 'ID: 22431L'}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -182,6 +200,19 @@ export default function ProfileScreen({ navigation }) {
               <Ionicons name="help-circle-outline" size={20} color={theme.colors.warning} />
             </View>
             <Text style={[styles.menuText, { color: theme.colors.text }]}>Help & Support</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+        </Pressable>
+
+        <Pressable 
+          style={[styles.menuItem, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} 
+          onPress={handleLogout}
+        >
+          <View style={styles.menuItemContent}>
+            <View style={[styles.menuIcon, { backgroundColor: theme.colors.danger + '15' }]}>
+              <Ionicons name="log-out-outline" size={20} color={theme.colors.danger} />
+            </View>
+            <Text style={[styles.menuText, { color: theme.colors.danger }]}>Logout</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
         </Pressable>

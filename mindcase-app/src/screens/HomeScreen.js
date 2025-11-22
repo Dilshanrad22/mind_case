@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSelector } from 'react-redux';
 import { useApp } from '../store/AppContext';
 import { useTheme } from '../theme';
 import ShiningGold from '../components/ShiningGold';
 
 export default function HomeScreen({ navigation }) {
   const { moodEntries, recentMoodAverage, journalEntries } = useApp();
+  const user = useSelector((state) => state.auth.user);
   const theme = useTheme();
   
   const getCurrentGreeting = () => {
@@ -15,6 +17,13 @@ export default function HomeScreen({ navigation }) {
     if (hour < 12) return 'Good Morning';
     if (hour < 18) return 'Good Afternoon';
     return 'Good Evening';
+  };
+
+  const getUserName = () => {
+    if (user) {
+      return user.firstName || user.username || 'User';
+    }
+    return 'User';
   };
 
   return (
@@ -39,7 +48,7 @@ export default function HomeScreen({ navigation }) {
           </ShiningGold>
           <View style={styles.greetingSection}>
             <Text style={[styles.greeting, { color: theme.colors.textOnPrimary }]}>{getCurrentGreeting()}</Text>
-            <Text style={[styles.username, { color: theme.colors.textOnPrimary }]}>Welcome back!</Text>
+            <Text style={[styles.username, { color: theme.colors.textOnPrimary }]}>{getUserName()}</Text>
           </View>
         </View>
         <Pressable onPress={() => navigation.navigate('Profile')}>
@@ -99,18 +108,6 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.statValue, { color: theme.colors.text }]}>{moodEntries.length}</Text>
             <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Activities</Text>
             <Text style={[styles.statPeriod, { color: theme.colors.textMuted }]}>Completed</Text>
-          </Pressable>
-
-          <Pressable 
-            style={[styles.statCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} 
-            onPress={() => navigation.navigate('Insights')}
-          >
-            <View style={[styles.iconCircle, { backgroundColor: theme.colors.info + '15' }]}>
-              <Ionicons name="stats-chart" size={24} color={theme.colors.info} />
-            </View>
-            <Text style={[styles.statValue, { color: theme.colors.text }]}>{moodEntries.length}</Text>
-            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Insights</Text>
-            <Text style={[styles.statPeriod, { color: theme.colors.textMuted }]}>View trends</Text>
           </Pressable>
         </View>
       </View>

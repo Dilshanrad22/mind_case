@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.10.1",
+    "expo-secure-store": "^15.0.7",
+    "react-redux": "^9.2.0",
+    "yup": "^1.7.1"
+  }
+}
