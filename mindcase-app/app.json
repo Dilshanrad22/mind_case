@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mindcase-app",
-    "slug": "mindcase-app",
+    "name": "Mind Haven",
+    "slug": "mind-haven",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

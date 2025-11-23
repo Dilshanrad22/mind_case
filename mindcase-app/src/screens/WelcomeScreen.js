@@ -51,7 +51,7 @@ export default function WelcomeScreen({ navigation }) {
         <View style={styles.content}>
           {/* Title section */}
           <View style={styles.titleSection}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>MindEase</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]}>Mind Haven</Text>
             <View style={[styles.titleUnderline, { backgroundColor: theme.colors.primary }]} />
           </View>
           

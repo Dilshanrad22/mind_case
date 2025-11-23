@@ -51,16 +51,17 @@ export default function SignUpScreen({ navigation }) {
       await registerSchema.validate(formData, { abortEarly: false });
       setErrors({});
       
-      // Register user
+      // Register user (simulation/local) – do NOT auto-login
       await dispatch(register(formData)).unwrap();
-      
-      // Auto-login after registration
-      await dispatch(login({ 
-        username: formData.username, 
-        password: formData.password 
-      })).unwrap();
-      
-      navigation.replace('App');
+
+      // Show success message then redirect to SignIn
+      Alert.alert(
+        'Account Created',
+        'Your account has been created successfully. Please sign in.',
+        [
+          { text: 'OK', onPress: () => navigation.replace('SignIn') }
+        ]
+      );
     } catch (err) {
       if (err.name === 'ValidationError') {
         const validationErrors = {};

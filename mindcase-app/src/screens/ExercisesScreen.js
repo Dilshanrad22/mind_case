@@ -6,6 +6,7 @@ import { useApp } from '../store/AppContext';
 import { useTheme } from '../theme';
 import { fetchExercises } from '../services/exercisesApi';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
+import { imageForExercise } from '../services/exerciseImages';
 
 const resources = [
   { id: 'res-1', title: 'Mindfulness Basics', url: 'https://www.mindful.org/meditation/mindfulness-getting-started/', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&w=300&q=60' },
@@ -152,8 +153,12 @@ export default function ExercisesScreen({ navigation }) {
 }
 
 function normalizeItem(item) {
-  if (item.title) return item;
-  return { id: item.id || item.name, title: item.name, description: item.instructions || item.description || '', image: item.image };
+  // If item already in desired shape (fallback entries) ensure image presence
+  if (item.title) {
+    return { ...item, image: item.image || imageForExercise(item) };
+  }
+  const normalized = { id: item.id || item.name, title: item.name, description: item.instructions || item.description || '' };
+  return { ...normalized, image: imageForExercise({ ...normalized, muscle: item.muscle, type: item.type }) };
 }
 
 const styles = StyleSheet.create({
