@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,9 +46,13 @@ export default function ExerciseDetailScreen({ route, navigation }) {
         style={styles.headerCard}
       >
         <View style={styles.headerContent}>
-          <View style={styles.exerciseIconCircle}>
-            <Ionicons name="fitness" size={40} color={theme.colors.textOnPrimary} />
-          </View>
+          {exercise.image ? (
+            <Image source={{ uri: exercise.image }} style={styles.heroImage} />
+          ) : (
+            <View style={styles.exerciseIconCircle}>
+              <Ionicons name="fitness" size={40} color={theme.colors.textOnPrimary} />
+            </View>
+          )}
           <Text style={[styles.title, { color: theme.colors.textOnPrimary }]}>
             {exercise.title || exercise.name}
           </Text>
@@ -177,6 +181,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  heroImage: {
+    width: 140,
+    height: 140,
+    borderRadius: 16,
+    resizeMode: 'cover',
   },
   title: { 
     fontSize: 24, 

@@ -43,16 +43,25 @@ export async function fetchExercises(params = {}) {
   }
   if (!resp.ok) {
     const text = await resp.text();
-    if (resp.status === 400 && /Invalid API Key/i.test(text)) {
-      throw new Error('Invalid API Key: verify it from api-ninjas.com dashboard and replace placeholder.');
+    let json;
+    try { json = JSON.parse(text); } catch (_) { /* non-JSON */ }
+    const rawMsg = (json && (json.error || json.message)) || text;
+
+    // Common specific cases mapped to clearer guidance
+    if (resp.status === 400 && /Invalid API Key/i.test(rawMsg)) {
+      throw new Error('Invalid API Key: verify it in your API Ninjas dashboard and update EXERCISES_API_KEY.');
+    }
+    if (resp.status === 400 && /currently down for free users/i.test(rawMsg)) {
+      // Endpoint temporarily unavailable for free tier – treat like a soft failure
+      throw new Error('Exercises API temporarily unavailable for free users. Showing local sample exercises. (Upgrade plan or try later)');
     }
     if (resp.status === 401) {
-      throw new Error('Unauthorized (401): key rejected. Regenerate key or check header name.');
+      throw new Error('Unauthorized (401): key rejected. Regenerate key or confirm header name X-Api-Key.');
     }
     if (resp.status === 429) {
-      throw new Error('Rate limit exceeded (429): wait or upgrade plan.');
+      throw new Error('Rate limit exceeded (429): wait, reduce requests, or upgrade your plan.');
     }
-    throw new Error(`API error ${resp.status}: ${text}`);
+    throw new Error(`API error ${resp.status}: ${rawMsg}`);
   }
   const data = await resp.json();
   try {

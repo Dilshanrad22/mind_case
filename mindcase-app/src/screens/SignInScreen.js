@@ -85,7 +85,7 @@ export default function SignInScreen({ navigation }) {
           </View>
           <Text style={[styles.headerTitle, { color: '#fff' }]}>Welcome Back</Text>
           <Text style={[styles.headerSubtitle, { color: '#fff', opacity: 0.9 }]}>Sign in to continue your wellness journey</Text>
-          <Text style={[styles.demoHint, { color: '#fff', opacity: 0.8 }]}>Demo: username: emilys, password: emilyspass</Text>
+          <Text style={[styles.demoHint, { color: '#fff', opacity: 0.8 }]}>Demo users:\n1) Dulanjana / dullanjana224231 (local)\n2) emilys / emilyspass (DummyJSON)</Text>
         </LinearGradient>
 
         {/* Form Container */}

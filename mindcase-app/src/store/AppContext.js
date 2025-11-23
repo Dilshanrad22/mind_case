@@ -11,9 +11,14 @@ export function AppProvider({ children }) {
   const [favoriteExercises, setFavoriteExercises] = useState([]); // Array of exercise objects
 
   const exercises = [
-    { id: 'breath-box', title: 'Box Breathing', description: 'Inhale 4s, hold 4s, exhale 4s, hold 4s.' },
-    { id: 'mindful-min', title: '1-Minute Mindfulness', description: 'Observe surroundings & breathing for one minute.' },
-    { id: 'body-scan', title: 'Body Scan', description: 'Mentally scan each part of your body and relax.' }
+    { id: 'breath-box', title: 'Box Breathing', description: 'Inhale 4s, hold 4s, exhale 4s, hold 4s.', image: 'https://images.unsplash.com/photo-1523978591478-c753949ff840?auto=format&w=400&q=60' },
+    { id: 'mindful-min', title: '1-Minute Mindfulness', description: 'Observe surroundings & breathing for one minute.', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&w=400&q=60' },
+    { id: 'body-scan', title: 'Body Scan', description: 'Mentally scan each part of your body and relax.', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&w=400&q=60' },
+    { id: 'gratitude-journal', title: 'Gratitude Journal', description: 'Write three things you are thankful for.', image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&w=400&q=60' },
+    { id: 'progressive-muscle', title: 'Progressive Muscle Relaxation', description: 'Tense and release muscle groups head to toe.', image: 'https://images.unsplash.com/photo-1584467735871-1f9d29f92f31?auto=format&w=400&q=60' },
+    { id: 'guided-meditation', title: 'Guided Meditation', description: 'Follow a 5–10 minute audio or video guide.', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&w=400&q=60' },
+    { id: 'walking-mindful', title: 'Mindful Walking', description: 'Slow walk focusing on sensations in each step.', image: 'https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&w=400&q=60' },
+    { id: 'breath-478', title: '4-7-8 Breathing', description: 'Inhale 4s, hold 7s, exhale 8s to calm nervous system.', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&w=400&q=60' }
   ];
 
   // Load favorites from AsyncStorage on mount
