@@ -2,36 +2,27 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// Local fallback users (since DummyJSON cannot create new accounts)
-// Added custom assignment user: Dulanjana / dullanjana224231
-const LOCAL_USERS = [
-  {
-    id: 1001,
-    username: 'dulanjana', // store normalized lowercase internally
-    firstName: 'Dulanjana',
-    lastName: '',
-    email: 'dilshanrad22@mindcase.local',
-    password: 'dullanjana224231',
-    image: null,
-  }
-];
-
 // Web-safe wrappers (SecureStore not supported on web) -------------------
 const secureSetItem = async (key, value) => {
-  if (Platform.OS === 'web') return; // skip silently on web
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, value);
+    return;
+  }
   try { await SecureStore.setItemAsync(key, value); } catch {}
 };
 const secureGetItem = async (key) => {
-  if (Platform.OS === 'web') return null; // no persistence on web
+  if (Platform.OS === 'web') {
+    return localStorage.getItem(key);
+  }
   try { return await SecureStore.getItemAsync(key); } catch { return null; }
 };
 const secureDeleteItem = async (key) => {
-  if (Platform.OS === 'web') return; 
+  if (Platform.OS === 'web') {
+    localStorage.removeItem(key);
+    return;
+  }
   try { await SecureStore.deleteItemAsync(key); } catch {}
 };
-
-// Token generator (avoid Buffer use for web) -----------------------------
-const genToken = () => 'local-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
 
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
@@ -39,38 +30,22 @@ const USER_KEY = 'auth_user';
 // Async thunks for authentication
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const uname = (username || '').trim().toLowerCase();
-      const pwd = (password || '').trim();
-
-      // 1. Local user (case-insensitive)
-      const localMatch = LOCAL_USERS.find(u => u.username === uname && u.password === pwd);
-      if (localMatch) {
-        const payload = {
-          ...localMatch,
-          token: genToken(),
-          refreshToken: null,
-          gender: null,
-        };
-        await secureSetItem(TOKEN_KEY, payload.token);
-        await secureSetItem(USER_KEY, JSON.stringify(payload));
-        return payload;
-      }
-
-      // 2. Fallback to DummyJSON demo users (only if not local)
-      const response = await fetch('https://dummyjson.com/auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, expiresInMins: 30 })
+        body: JSON.stringify({ email, password })
       });
 
       const data = await response.json();
       if (!response.ok) {
         return rejectWithValue(data.message || 'Login failed');
       }
+      console.log('[Auth] Login successful, storing token');
       await secureSetItem(TOKEN_KEY, data.token);
-      await secureSetItem(USER_KEY, JSON.stringify(data));
+      await secureSetItem(USER_KEY, JSON.stringify(data.user));
+      console.log('[Auth] Token and user data stored');
       return data;
     } catch (error) {
       return rejectWithValue(error.message || 'Network error');
@@ -80,20 +55,20 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async ({ username, password, firstName, lastName, email }, { rejectWithValue }) => {
+  async ({ name, email, password }, { rejectWithValue }) => {
     try {
-      const uname = (username || '').trim().toLowerCase();
-      const simulatedUser = {
-        id: Date.now(),
-        username: uname,
-        firstName: firstName || username,
-        lastName: lastName || '',
-        email: email || `${uname}@mindcase.local`,
-        token: genToken(),
-      };
-      await secureSetItem(TOKEN_KEY, simulatedUser.token);
-      await secureSetItem(USER_KEY, JSON.stringify(simulatedUser));
-      return simulatedUser;
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Registration failed');
+      }
+      // Don't auto-login after signup
+      return data;
     } catch (error) {
       return rejectWithValue(error.message || 'Network error');
     }
@@ -107,7 +82,10 @@ export const loadStoredAuth = createAsyncThunk(
       const token = await secureGetItem(TOKEN_KEY);
       const userStr = await secureGetItem(USER_KEY);
       if (token && userStr) {
-        return JSON.parse(userStr);
+        return {
+          token,
+          user: JSON.parse(userStr)
+        };
       }
       return null;
     } catch (error) {
@@ -148,7 +126,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.token = action.payload.token;
         state.error = null;
       })
@@ -173,7 +151,7 @@ const authSlice = createSlice({
       .addCase(loadStoredAuth.fulfilled, (state, action) => {
         if (action.payload) {
           state.isAuthenticated = true;
-          state.user = action.payload;
+          state.user = action.payload.user;
           state.token = action.payload.token;
         }
       })

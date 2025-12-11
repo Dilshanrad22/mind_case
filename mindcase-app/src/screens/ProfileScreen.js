@@ -17,8 +17,7 @@ export default function ProfileScreen({ navigation }) {
   
   const getUserName = () => {
     if (user) {
-      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-      return fullName || user.username || 'MindEase User';
+      return user.name || 'MindEase User';
     }
     return 'MindEase User';
   };

@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSelector } from 'react-redux';
-import { useApp } from '../store/AppContext';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '../theme';
 import ShiningGold from '../components/ShiningGold';
+import { fetchJournals } from '../redux/slices/journalSlice';
+import { fetchMoods } from '../redux/slices/moodSlice';
+import { selectRecentMoodAverage } from '../redux/slices/moodSlice';
 
 export default function HomeScreen({ navigation }) {
-  const { moodEntries, recentMoodAverage, journalEntries } = useApp();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const journalEntries = useSelector((state) => state.journal.entries);
+  const moodEntries = useSelector((state) => state.mood.entries);
+  const recentMoodAverage = useSelector(selectRecentMoodAverage);
   const theme = useTheme();
+
+  useEffect(() => {
+    // Load data on mount
+    dispatch(fetchJournals());
+    dispatch(fetchMoods());
+  }, []);
   
   const getCurrentGreeting = () => {
     const hour = new Date().getHours();
@@ -21,7 +32,7 @@ export default function HomeScreen({ navigation }) {
 
   const getUserName = () => {
     if (user) {
-      return user.firstName || user.username || 'User';
+      return user.name || 'User';
     }
     return 'User';
   };
