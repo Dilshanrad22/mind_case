@@ -10,16 +10,12 @@ import { register, login } from '../redux/slices/authSlice';
 
 // Validation schema
 const registerSchema = Yup.object().shape({
-  username: Yup.string()
-    .required('Username is required')
-    .min(3, 'Username must be at least 3 characters'),
+  name: Yup.string()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters'),
   email: Yup.string()
     .email('Invalid email format')
     .required('Email is required'),
-  firstName: Yup.string()
-    .required('First name is required'),
-  lastName: Yup.string()
-    .required('Last name is required'),
   password: Yup.string()
     .required('Password is required')
     .min(6, 'Password must be at least 6 characters'),
@@ -31,10 +27,8 @@ export default function SignUpScreen({ navigation }) {
   const { loading } = useSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
-    firstName: '',
-    lastName: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
@@ -102,49 +96,19 @@ export default function SignUpScreen({ navigation }) {
         {/* Form Container */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Username</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.username ? theme.colors.danger : theme.colors.border }]}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Full Name</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.name ? theme.colors.danger : theme.colors.border }]}>
               <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
-                placeholder="Choose a username" 
+                placeholder="Enter your full name" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
-                autoCapitalize="none"
-                value={formData.username}
-                onChangeText={(text) => handleInputChange('username', text)}
+                autoCapitalize="words"
+                value={formData.name}
+                onChangeText={(text) => handleInputChange('name', text)}
               />
             </View>
-            {errors.username && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.username}</Text>}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>First Name</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.firstName ? theme.colors.danger : theme.colors.border }]}>
-              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
-              <TextInput 
-                placeholder="Enter your first name" 
-                placeholderTextColor={theme.colors.textMuted}
-                style={[styles.input, { color: theme.colors.text }]} 
-                value={formData.firstName}
-                onChangeText={(text) => handleInputChange('firstName', text)}
-              />
-            </View>
-            {errors.firstName && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.firstName}</Text>}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Last Name</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.lastName ? theme.colors.danger : theme.colors.border }]}>
-              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
-              <TextInput 
-                placeholder="Enter your last name" 
-                placeholderTextColor={theme.colors.textMuted}
-                style={[styles.input, { color: theme.colors.text }]} 
-                value={formData.lastName}
-                onChangeText={(text) => handleInputChange('lastName', text)}
-              />
-            </View>
-            {errors.lastName && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.lastName}</Text>}
+            {errors.name && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.name}</Text>}
           </View>
 
           <View style={styles.inputContainer}>

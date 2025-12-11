@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import PrimaryButton from '../components/PrimaryButton';
-import { useApp } from '../store/AppContext';
 import { useTheme } from '../theme';
+import { createJournal } from '../redux/slices/journalSlice';
 
 export default function NewJournalEntryScreen({ navigation }) {
-  const { addJournal } = useApp();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.journal);
   const theme = useTheme();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
-  function save() {
-    if (title.trim()) {
-      addJournal(title, body);
-      navigation.goBack();
+  const save = async () => {
+    if (!title.trim()) {
+      Alert.alert('Required', 'Please enter a title for your journal entry');
+      return;
     }
-  }
+
+    if (!body.trim()) {
+      Alert.alert('Required', 'Please enter some content for your journal entry');
+      return;
+    }
+
+    try {
+      await dispatch(createJournal({ title: title.trim(), text: body.trim() })).unwrap();
+      Alert.alert('Success', 'Journal entry created successfully');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', error || 'Failed to create journal entry');
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -26,16 +41,22 @@ export default function NewJournalEntryScreen({ navigation }) {
         value={title} 
         onChangeText={setTitle} 
         style={[styles.input, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface, color: theme.colors.text }]} 
+        editable={!loading}
       />
       <TextInput 
-        placeholder="Body" 
+        placeholder="Write your thoughts here..." 
         placeholderTextColor={theme.colors.textMuted}
         value={body} 
         onChangeText={setBody} 
         style={[styles.input, styles.bodyInput, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface, color: theme.colors.text }]} 
         multiline 
+        editable={!loading}
       />
-      <PrimaryButton label="Save" onPress={save} />
+      {loading ? (
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      ) : (
+        <PrimaryButton label="Save" onPress={save} />
+      )}
     </View>
   );
 }

@@ -10,9 +10,9 @@ import { login } from '../redux/slices/authSlice';
 
 // Validation schema
 const loginSchema = Yup.object().shape({
-  username: Yup.string()
-    .required('Username is required')
-    .min(3, 'Username must be at least 3 characters'),
+  email: Yup.string()
+    .email('Invalid email format')
+    .required('Email is required'),
   password: Yup.string()
     .required('Password is required')
     .min(6, 'Password must be at least 6 characters'),
@@ -24,7 +24,7 @@ export default function SignInScreen({ navigation }) {
   const { loading, error } = useSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
@@ -85,25 +85,25 @@ export default function SignInScreen({ navigation }) {
           </View>
           <Text style={[styles.headerTitle, { color: '#fff' }]}>Welcome Back</Text>
           <Text style={[styles.headerSubtitle, { color: '#fff', opacity: 0.9 }]}>Sign in to continue your wellness journey</Text>
-          <Text style={[styles.demoHint, { color: '#fff', opacity: 0.8 }]}>Demo users:\n1) Dulanjana / dullanjana224231 (local)\n2) emilys / emilyspass (DummyJSON)</Text>
         </LinearGradient>
 
         {/* Form Container */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Username</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.username ? theme.colors.danger : theme.colors.border }]}>
-              <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: theme.colors.text }]}>Email Address</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surface, borderColor: errors.email ? theme.colors.danger : theme.colors.border }]}>
+              <Ionicons name="mail-outline" size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
               <TextInput 
-                placeholder="Enter your username" 
+                placeholder="Enter your email" 
                 placeholderTextColor={theme.colors.textMuted}
                 style={[styles.input, { color: theme.colors.text }]} 
                 autoCapitalize="none"
-                value={formData.username}
-                onChangeText={(text) => handleInputChange('username', text)}
+                keyboardType="email-address"
+                value={formData.email}
+                onChangeText={(text) => handleInputChange('email', text)}
               />
             </View>
-            {errors.username && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.username}</Text>}
+            {errors.email && <Text style={[styles.errorText, { color: theme.colors.danger }]}>{errors.email}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
