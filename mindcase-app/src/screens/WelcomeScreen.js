@@ -51,12 +51,12 @@ export default function WelcomeScreen({ navigation }) {
         <View style={styles.content}>
           {/* Title section */}
           <View style={styles.titleSection}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>Mind Haven</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]}>WellNest</Text>
             <View style={[styles.titleUnderline, { backgroundColor: theme.colors.primary }]} />
           </View>
           
           <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Your daily mental wellness companion
+            Your daily wellness companion
           </Text>
         </View>
         

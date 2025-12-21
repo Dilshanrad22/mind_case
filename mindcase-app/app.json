@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Mind Haven",
-    "slug": "mind-haven",
+    "name": "WellNest",
+    "slug": "wellnest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

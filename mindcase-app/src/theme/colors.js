@@ -1,8 +1,8 @@
 // Light Mode - Golden & Dark Blue Theme
 export const lightColors = {
   // Primary - Dark Blue
-  primary: '#1B3A6B',
-  primaryLight: '#2E5490',
+  primary: '#68ebacff',
+  primaryLight: '#A8FBD3',
   primaryDark: '#0F2347',
   
   // Secondary - Shining Golden
@@ -28,7 +28,7 @@ export const lightColors = {
   text: '#1A1A1A',
   textSecondary: '#4A5568',
   textMuted: '#718096',
-  textOnPrimary: '#FFFFFF',
+  textOnPrimary: '#116108ff',
   textOnSecondary: '#1B3A6B',
   
   // Borders
