@@ -23,7 +23,8 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "extra": {
       "EXERCISES_API_KEY": "8bF7bVFmc2iJcsN3GdMC1g==krdFzBuaPv214aXV"
