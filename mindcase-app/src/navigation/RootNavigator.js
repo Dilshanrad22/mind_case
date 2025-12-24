@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +21,8 @@ import JournalEntryScreen from '../screens/JournalEntryScreen';
 import NewJournalEntryScreen from '../screens/NewJournalEntryScreen';
 import MoodHistoryScreen from '../screens/MoodHistoryScreen';
 import ExerciseDetailScreen from '../screens/ExerciseDetailScreen';
+import ChatScreen from '../screens/ChatScreen';
+import DraggableChatButton from '../components/DraggableChatButton';
 import { useTheme } from '../theme';
 import { loadStoredAuth } from '../redux/slices/authSlice';
 import { loadFavoritesFromStorage } from '../redux/slices/favoritesSlice';
@@ -155,6 +157,8 @@ export default function RootNavigator() {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const navigationRef = useRef(null);
 
   useEffect(() => {
     // Load stored auth and favorites on app start
@@ -167,6 +171,18 @@ export default function RootNavigator() {
     initializeApp();
   }, [dispatch]);
 
+  const handleChatPress = () => {
+    if (navigationRef.current && isAuthenticated) {
+      navigationRef.current.navigate('Chat');
+    }
+  };
+
+  const onNavigationStateChange = (state) => {
+    // Check if current route is Chat
+    const currentRoute = state?.routes?.[state.index]?.name;
+    setIsChatOpen(currentRoute === 'Chat');
+  };
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
@@ -176,25 +192,44 @@ export default function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style={theme.isDark ? "light" : "dark"} />
-      <RootStack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: theme.colors.surface },
-          headerTintColor: theme.colors.text,
-          headerShadowVisible: false
-        }}
-      >
-        {!isAuthenticated ? (
-          <>
-            <RootStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-            <RootStack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In' }} />
-            <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Create Account' }} />
-          </>
-        ) : (
-          <RootStack.Screen name="App" component={AppTabs} options={{ headerShown: false }} />
-        )}
-      </RootStack.Navigator>
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <NavigationContainer ref={navigationRef} onStateChange={onNavigationStateChange}>
+        <StatusBar style={theme.isDark ? "light" : "dark"} />
+        <RootStack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: theme.colors.surface },
+            headerTintColor: theme.colors.text,
+            headerShadowVisible: false
+          }}
+        >
+          {!isAuthenticated ? (
+            <>
+              <RootStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+              <RootStack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In' }} />
+              <RootStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Create Account' }} />
+            </>
+          ) : (
+            <>
+              <RootStack.Screen name="App" component={AppTabs} options={{ headerShown: false }} />
+              <RootStack.Screen 
+                name="Chat" 
+                component={ChatScreen} 
+                options={{ 
+                  headerShown: false,
+                  presentation: 'modal',
+                  animation: 'slide_from_bottom'
+                }} 
+              />
+            </>
+          )}
+        </RootStack.Navigator>
+      </NavigationContainer>
+      
+      {/* Draggable Chat Button - Only visible when authenticated and chat is not open */}
+      <DraggableChatButton 
+        onPress={handleChatPress} 
+        visible={isAuthenticated && !isChatOpen} 
+      />
+    </View>
   );
 }
