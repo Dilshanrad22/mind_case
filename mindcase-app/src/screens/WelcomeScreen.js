@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import PrimaryButton from '../components/PrimaryButton';
 import { useTheme } from '../theme';
 
@@ -19,39 +18,20 @@ export default function WelcomeScreen({ navigation }) {
         locations={[0, 0.4, 1]}
         style={styles.gradient}
       >
-        {/* Header illustration section */}
+        {/* Logo section */}
         <View style={styles.illustrationSection}>
-          {/* Mental wellness illustration using icons */}
-          <View style={styles.illustrationContainer}>
-            {/* Person meditating icon */}
-            <View style={[styles.mainIconCircle, { backgroundColor: theme.colors.primary }]}>
-              <Ionicons name="person" size={80} color="#fff" />
-            </View>
-            
-            {/* Surrounding wellness icons */}
-            <View style={[styles.floatingIcon, styles.icon1, { backgroundColor: theme.colors.primary + '20' }]}>
-              <Ionicons name="heart" size={32} color={theme.colors.primary} />
-            </View>
-            
-            <View style={[styles.floatingIcon, styles.icon2, { backgroundColor: theme.colors.info + '20' }]}>
-              <Ionicons name="sunny" size={28} color={theme.colors.info} />
-            </View>
-            
-            <View style={[styles.floatingIcon, styles.icon3, { backgroundColor: theme.colors.success + '20' }]}>
-              <Ionicons name="leaf" size={28} color={theme.colors.success} />
-            </View>
-            
-            <View style={[styles.floatingIcon, styles.icon4, { backgroundColor: theme.colors.primary + '20' }]}>
-              <Ionicons name="star" size={24} color={theme.colors.primary} />
-            </View>
-          </View>
+          <Image 
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
         
         {/* Main content */}
         <View style={styles.content}>
           {/* Title section */}
           <View style={styles.titleSection}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>WellNest</Text>
+            <Text style={[styles.title, { color: theme.colors.text }]}>Well Sync</Text>
             <View style={[styles.titleUnderline, { backgroundColor: theme.colors.primary }]} />
           </View>
           
@@ -71,6 +51,15 @@ export default function WelcomeScreen({ navigation }) {
             variant="secondary" 
             onPress={() => navigation.navigate('SignUp')} 
           />
+          
+          {/* Watermark at bottom */}
+          <View style={styles.watermarkContainer}>
+            <Image 
+              source={require('../../assets/watermark.png')}
+              style={styles.watermark}
+              resizeMode="contain"
+            />
+          </View>
         </View>
       </LinearGradient>
     </View>
@@ -90,58 +79,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 60,
   },
-  illustrationContainer: {
-    width: width * 0.7,
-    height: width * 0.7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  mainIconCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
-    zIndex: 5,
-  },
-  floatingIcon: {
-    position: 'absolute',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  icon1: {
-    width: 60,
-    height: 60,
-    top: 20,
-    right: 10,
-  },
-  icon2: {
-    width: 56,
-    height: 56,
-    top: 50,
-    left: 0,
-  },
-  icon3: {
-    width: 56,
-    height: 56,
-    bottom: 40,
-    right: 20,
-  },
-  icon4: {
-    width: 48,
-    height: 48,
-    bottom: 20,
-    left: 30,
+  logo: {
+    width: width * 0.6,
+    height: width * 0.6,
+    maxWidth: 250,
+    maxHeight: 250,
   },
   content: {
     alignItems: 'center',
@@ -177,5 +119,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingBottom: 50,
     gap: 12,
+  },
+  watermarkContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+    paddingBottom: 10,
+  },
+  watermark: {
+    width: 120,
+    height: 40,
+    opacity: 0.7,
   },
 });
