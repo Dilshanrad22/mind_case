@@ -8,6 +8,7 @@ import ShiningGold from '../components/ShiningGold';
 import { fetchJournals } from '../redux/slices/journalSlice';
 import { fetchMoods } from '../redux/slices/moodSlice';
 import { selectRecentMoodAverage } from '../redux/slices/moodSlice';
+import { fetchTodayNutrition } from '../redux/slices/nutritionSlice';
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -15,12 +16,14 @@ export default function HomeScreen({ navigation }) {
   const journalEntries = useSelector((state) => state.journal.entries);
   const moodEntries = useSelector((state) => state.mood.entries);
   const recentMoodAverage = useSelector(selectRecentMoodAverage);
+  const todayNutrition = useSelector((state) => state.nutrition.todayNutrition);
   const theme = useTheme();
 
   useEffect(() => {
     // Load data on mount
     dispatch(fetchJournals());
     dispatch(fetchMoods());
+    dispatch(fetchTodayNutrition());
   }, []);
   
   const getCurrentGreeting = () => {
@@ -120,6 +123,22 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Activities</Text>
             <Text style={[styles.statPeriod, { color: theme.colors.textMuted }]}>Completed</Text>
           </Pressable>
+
+          <Pressable 
+            style={[styles.statCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} 
+            onPress={() => navigation.navigate('Nutrition')}
+          >
+            <View style={[styles.iconCircle, { backgroundColor: '#FF6B6B15' }]}>
+              <Ionicons name="nutrition" size={24} color="#FF6B6B" />
+            </View>
+            <Text style={[styles.statValue, { color: theme.colors.text }]}>
+              {todayNutrition?.totalCalories || 0}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Calories Today</Text>
+            <Text style={[styles.statPeriod, { color: theme.colors.textMuted }]}>
+              {todayNutrition?.stepsWalked || 0} steps
+            </Text>
+          </Pressable>
         </View>
       </View>
 
@@ -165,6 +184,30 @@ export default function HomeScreen({ navigation }) {
                 <Ionicons name="arrow-forward" size={24} color={theme.colors.textOnSecondary} />
               </View>
             </ShiningGold>
+          </LinearGradient>
+        </Pressable>
+
+        <Pressable 
+          style={[styles.actionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} 
+          onPress={() => navigation.navigate('Nutrition')}
+        >
+          <LinearGradient
+            colors={['#FF6B6B', '#FF8E53']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.actionGradient}
+          >
+            <View style={styles.actionContent}>
+              <View>
+                <Text style={[styles.actionTitle, { color: '#fff' }]}>Track Food & Steps</Text>
+                <Text style={[styles.actionDesc, { color: '#fff', opacity: 0.9 }]}>
+                  {todayNutrition?.remainingCalories > 0 
+                    ? `${todayNutrition.remainingCalories} cal to burn`
+                    : 'Monitor your nutrition'}
+                </Text>
+              </View>
+              <Ionicons name="arrow-forward" size={24} color="#fff" />
+            </View>
           </LinearGradient>
         </Pressable>
       </View>

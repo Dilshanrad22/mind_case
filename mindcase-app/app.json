@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "WellNest",
-    "slug": "wellnest",
+    "name": "WellSync",
+    "slug": "wellsync",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,14 +20,18 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.wellnest"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "extra": {
-      "EXERCISES_API_KEY": "8bF7bVFmc2iJcsN3GdMC1g==krdFzBuaPv214aXV"
+      "EXERCISES_API_KEY": "8bF7bVFmc2iJcsN3GdMC1g==krdFzBuaPv214aXV",
+      "eas": {
+        "projectId": "21947196-4939-404b-a964-f9bf25fbfd26"
+      }
     }
   }
 }

@@ -126,8 +126,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   watermark: {
-    width: 120,
-    height: 40,
+    width: 180,
+    height: 60,
     opacity: 0.7,
   },
 });

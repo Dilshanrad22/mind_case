@@ -63,7 +63,16 @@ export default function ExercisesScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.heading, { color: theme.colors.text }]}>Exercises</Text>
+      <View style={styles.headerRow}>
+        <Text style={[styles.heading, { color: theme.colors.text }]}>Exercises</Text>
+        <Pressable 
+          style={[styles.favoritesBtn, { backgroundColor: theme.colors.secondary }]} 
+          onPress={() => navigation.navigate('Favorites')}
+        >
+          <Ionicons name="heart" size={18} color="#fff" />
+          <Text style={styles.favoritesBtnText}>My Favorites</Text>
+        </Pressable>
+      </View>
       <View style={styles.filters}>
         <TextInput 
           placeholder="Muscle (e.g. chest)" 
@@ -163,7 +172,26 @@ function normalizeItem(item) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
-  heading: { fontSize: 22, fontWeight: '600', marginBottom: 12 },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  heading: { fontSize: 22, fontWeight: '600' },
+  favoritesBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  favoritesBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   filters: { marginBottom: 12, gap: 8 },
   input: { padding: 12, borderRadius: 8, borderWidth: 1 },
   reloadBtn: { padding: 14, borderRadius: 8, alignItems: 'center' },

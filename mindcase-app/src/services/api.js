@@ -6,10 +6,8 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// Base API URL - Update this based on your environment
-const API_BASE_URL = __DEV__ 
-  ? 'http://localhost:5000/api' 
-  : 'https://your-production-api.com/api';
+// Base API URL - Hosted backend on Render
+const API_BASE_URL = 'https://mind-case-backend.onrender.com/api';
 
 // Token storage key
 const TOKEN_KEY = 'auth_token';

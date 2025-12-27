@@ -22,6 +22,8 @@ import NewJournalEntryScreen from '../screens/NewJournalEntryScreen';
 import MoodHistoryScreen from '../screens/MoodHistoryScreen';
 import ExerciseDetailScreen from '../screens/ExerciseDetailScreen';
 import ChatScreen from '../screens/ChatScreen';
+import FoodTrackerScreen from '../screens/FoodTrackerScreen';
+import NutritionHistoryScreen from '../screens/NutritionHistoryScreen';
 import DraggableChatButton from '../components/DraggableChatButton';
 import { useTheme } from '../theme';
 import { loadStoredAuth } from '../redux/slices/authSlice';
@@ -31,9 +33,9 @@ const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const JournalStack = createNativeStackNavigator();
 const MoodStack = createNativeStackNavigator();
-const FavoritesStack = createNativeStackNavigator();
 const ExercisesStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
+const NutritionStack = createNativeStackNavigator();
 
 function MoodStackNavigator() {
   const theme = useTheme();
@@ -68,21 +70,6 @@ function JournalStackNavigator() {
   );
 }
 
-function FavoritesStackNavigator() {
-  const theme = useTheme();
-  return (
-    <FavoritesStack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: theme.colors.surface },
-        headerTintColor: theme.colors.text,
-        headerShadowVisible: false
-      }}
-    >
-      <FavoritesStack.Screen name="FavoritesHome" component={FavoritesScreen} options={{ title: 'Favorites' }} />
-    </FavoritesStack.Navigator>
-  );
-}
-
 function ExercisesStackNavigator() {
   const theme = useTheme();
   return (
@@ -95,7 +82,24 @@ function ExercisesStackNavigator() {
     >
       <ExercisesStack.Screen name="ExercisesHome" component={ExercisesScreen} options={{ title: 'Exercises' }} />
       <ExercisesStack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} options={{ title: 'Exercise' }} />
+      <ExercisesStack.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'My Favorites' }} />
     </ExercisesStack.Navigator>
+  );
+}
+
+function NutritionStackNavigator() {
+  const theme = useTheme();
+  return (
+    <NutritionStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.colors.surface },
+        headerTintColor: theme.colors.text,
+        headerShadowVisible: false
+      }}
+    >
+      <NutritionStack.Screen name="FoodTracker" component={FoodTrackerScreen} options={{ headerShown: false }} />
+      <NutritionStack.Screen name="NutritionHistory" component={NutritionHistoryScreen} options={{ headerShown: false }} />
+    </NutritionStack.Navigator>
   );
 }
 
@@ -133,7 +137,7 @@ function AppTabs() {
             Home: 'home',
             Mood: 'happy',
             Journal: 'book',
-            Favorites: 'heart',
+            Nutrition: 'nutrition',
             Exercises: 'body',
             Profile: 'person'
           };
@@ -145,7 +149,7 @@ function AppTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Mood" component={MoodStackNavigator} />
       <Tab.Screen name="Journal" component={JournalStackNavigator} />
-      <Tab.Screen name="Favorites" component={FavoritesStackNavigator} />
+      <Tab.Screen name="Nutrition" component={NutritionStackNavigator} />
       <Tab.Screen name="Exercises" component={ExercisesStackNavigator} />
       <Tab.Screen name="Profile" component={ProfileStackNavigator} />
     </Tab.Navigator>
