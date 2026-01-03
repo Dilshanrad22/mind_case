@@ -51,15 +51,6 @@ export default function WelcomeScreen({ navigation }) {
             variant="secondary" 
             onPress={() => navigation.navigate('SignUp')} 
           />
-          
-          {/* Watermark at bottom */}
-          <View style={styles.watermarkContainer}>
-            <Image 
-              source={require('../../assets/watermark.png')}
-              style={styles.watermark}
-              resizeMode="contain"
-            />
-          </View>
         </View>
       </LinearGradient>
     </View>
@@ -119,15 +110,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingBottom: 50,
     gap: 12,
-  },
-  watermarkContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    paddingBottom: 10,
-  },
-  watermark: {
-    width: 180,
-    height: 60,
-    opacity: 0.7,
   },
 });
