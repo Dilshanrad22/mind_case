@@ -22,6 +22,7 @@ src/
 
 ## Running
 ```bash
+cd mindcase-app
 npm install
 npm start
 ```

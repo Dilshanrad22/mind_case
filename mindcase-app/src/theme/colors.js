@@ -28,7 +28,7 @@ export const lightColors = {
   text: '#1A1A1A',
   textSecondary: '#4A5568',
   textMuted: '#718096',
-  textOnPrimary: '#116108ff',
+  textOnPrimary: '#FFFFFF',
   textOnSecondary: '#1B3A6B',
   
   // Borders

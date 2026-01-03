@@ -60,11 +60,6 @@ export default function WelcomeScreen({ navigation }) {
               resizeMode="contain"
             />
           </View>
-          
-          {/* Powered by footer */}
-          <Text style={[styles.poweredBy, { color: theme.colors.textMuted }]}>
-            Powered by Leo Club of University of Moratuwa
-          </Text>
         </View>
       </LinearGradient>
     </View>
@@ -134,11 +129,5 @@ const styles = StyleSheet.create({
     width: 180,
     height: 60,
     opacity: 0.7,
-  },
-  poweredBy: {
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-    marginTop: 16,
   },
 });
